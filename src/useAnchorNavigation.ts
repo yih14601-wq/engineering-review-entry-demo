@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-export function useAnchorNavigation(anchorIds: string[], defaultAnchor: string) {
+export function useAnchorNavigation(
+  anchorIds: string[],
+  defaultAnchor: string,
+  enabled = true,
+) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
   const [activeAnchor, setActiveAnchor] = useState(defaultAnchor)
@@ -33,6 +37,7 @@ export function useAnchorNavigation(anchorIds: string[], defaultAnchor: string) 
   }, [])
 
   useEffect(() => {
+    if (!enabled) return
     const container = scrollRef.current
     if (!container) return
 
@@ -61,7 +66,7 @@ export function useAnchorNavigation(anchorIds: string[], defaultAnchor: string) 
       container.removeEventListener('scroll', updateActiveAnchor)
       window.removeEventListener('resize', updateActiveAnchor)
     }
-  }, [anchorIds, defaultAnchor])
+  }, [anchorIds, defaultAnchor, enabled])
 
   useEffect(() => () => {
     if (unlockTimerRef.current) window.clearTimeout(unlockTimerRef.current)

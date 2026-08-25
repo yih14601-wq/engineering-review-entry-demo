@@ -408,6 +408,7 @@ button:disabled {
   flex: 0 0 64px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0 32px;
   color: var(--neutral-500);
   background: #fff;
@@ -418,12 +419,15 @@ button:disabled {
 .audit-content-scroll {
   min-height: 0;
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
   overflow-y: auto;
   overscroll-behavior: contain;
   scroll-behavior: smooth;
+}
+
+.audit-content-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   padding: 24px 32px 32px;
 }
 

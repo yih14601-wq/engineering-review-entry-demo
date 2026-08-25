@@ -2,7 +2,6 @@ import { useMemo, useRef, useState, type ComponentType, type DragEvent } from 'r
 import {
   BadgeCheck,
   Boxes,
-  Building2,
   ChevronDown,
   ChevronRight,
   ClipboardCheck,
@@ -19,7 +18,6 @@ import {
   Plus,
   ReceiptText,
   Ruler,
-  Save,
   Send,
   Trash2,
   Upload,
@@ -526,43 +524,10 @@ export default function AuditPlanPage({
 
   return (
     <div className="system-shell">
-      <header className="system-header">
-        <div className="system-brand">
-          <span className="system-mark"><Building2 size={20} /></span>
-          <div>
-            <strong>工程审计业务系统</strong>
-            <span>审计计划</span>
-          </div>
-        </div>
-        <div className="system-header-actions">
-          <button type="button" className="secondary-button" onClick={() => onNotify('审计计划已保存')}>
-            <Save size={16} />
-            保存审计计划
-          </button>
-          <button type="button" className="primary-button" onClick={onOpenEntry}>
-            <FileCheck2 size={16} />
-            录入审定信息
-          </button>
-        </div>
-      </header>
+      <header className="system-header" aria-label="顶部占位区域" />
 
       <div className="system-body">
-        <aside className="system-sidebar" aria-label="系统导航">
-          <div className="system-sidebar-title">业务工作台</div>
-          <button type="button" className="system-nav-item is-active">
-            <ClipboardCheck size={18} />
-            <span>审计计划</span>
-          </button>
-          <button type="button" className="system-nav-item" onClick={onOpenEntry}>
-            <FileCheck2 size={18} />
-            <span>录入审定信息</span>
-          </button>
-          <div className="system-project-summary">
-            <span>当前项目</span>
-            <strong>城市更新综合改造项目</strong>
-            <small>工程建设</small>
-          </div>
-        </aside>
+        <aside className="system-sidebar" aria-label="左侧占位区域" />
 
         <main className="audit-work-card">
           <button
@@ -585,11 +550,16 @@ export default function AuditPlanPage({
           </div>
 
           <div className="audit-main-column">
-            <header className="work-order-header">
-              <span>送审资料：1</span>
-            </header>
             <div className="audit-content-scroll" ref={scrollRef}>
-              <section className="project-section-card" ref={registerSection('audit-project')}>
+              <header className="work-order-header">
+                <span>送审资料：1</span>
+                <button type="button" className="primary-button compact-button" onClick={onOpenEntry}>
+                  <FileCheck2 size={16} />
+                  录入审定信息
+                </button>
+              </header>
+              <div className="audit-content-stack">
+                <section className="project-section-card" ref={registerSection('audit-project')}>
                 <div className="audit-section-heading">
                   <div className="audit-section-title">
                     <span className="audit-section-icon"><FolderKanban size={20} /></span>
@@ -654,7 +624,8 @@ export default function AuditPlanPage({
                   sectionRef={registerSection(`audit-${category.id}`)}
                 />
               ))}
-              <div className="scroll-end-space" aria-hidden="true" />
+                <div className="scroll-end-space" aria-hidden="true" />
+              </div>
             </div>
           </div>
         </main>

@@ -136,7 +136,7 @@ export default function EntryReviewDrawer({
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const anchors = useMemo(() => entryAnchorIds, [])
   const { activeAnchor, registerSection, scrollRef, scrollToAnchor } =
-    useAnchorNavigation(anchors, 'entry-submit')
+    useAnchorNavigation(anchors, 'entry-submit', open)
 
   useEffect(() => {
     if (!open) return
