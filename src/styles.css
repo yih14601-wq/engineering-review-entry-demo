@@ -345,6 +345,7 @@ input:focus-visible,
 .business-sidebar {
   width: 100%;
   height: 100%;
+  overflow-y: auto;
   padding-top: 20px;
   background: var(--neutral-50);
   border-right: 1px solid var(--neutral-200);
@@ -396,7 +397,7 @@ input:focus-visible,
   color: var(--brand-500);
   font-weight: 500;
   background: var(--brand-50);
-  border-radius: 0 var(--radius) var(--radius) 0;
+  border-radius: 0;
 }
 
 .primary-nav.is-active::before,
@@ -447,6 +448,8 @@ input:focus-visible,
   min-height: 0;
   flex: 1;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
   padding: 24px 32px 40px;
 }
 
@@ -623,23 +626,83 @@ input:focus-visible,
   color: var(--neutral-300);
 }
 
+.review-sections {
+  display: grid;
+  padding-bottom: clamp(260px, 30vh, 320px);
+}
+
+.review-section {
+  scroll-margin-top: 24px;
+  padding: 0 0 40px;
+  margin: 0 0 36px;
+  border-bottom: 1px solid var(--neutral-200);
+}
+
+.review-section:last-child {
+  padding-bottom: 8px;
+  margin-bottom: 0;
+  border-bottom: 0;
+}
+
+.review-section-heading {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.review-section-heading > span {
+  width: 4px;
+  height: 22px;
+  flex: 0 0 4px;
+  background: var(--brand-500);
+}
+
+.review-section-heading h2,
+.contract-section h3 {
+  margin: 0;
+  letter-spacing: 0;
+}
+
+.review-section-heading h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
 .contracts {
   display: grid;
   gap: 36px;
 }
 
-.contract-section h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
+.contract-section {
+  margin-left: 20px;
+  padding-left: 20px;
+  border-left: 2px solid var(--brand-100);
 }
 
-.contract-accent {
-  width: 40px;
-  height: 3px;
-  margin: 10px 0 20px;
-  background: var(--brand-500);
-  border-radius: 2px;
+.contract-heading {
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.contract-icon {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  display: grid;
+  place-items: center;
+  color: var(--brand-500);
+  background: var(--brand-50);
+  border-radius: var(--radius);
+}
+
+.contract-section h3 {
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .form-footer {
@@ -782,6 +845,16 @@ input:focus-visible,
 
   .contracts {
     gap: 32px;
+  }
+
+  .review-section {
+    padding-bottom: 32px;
+    margin-bottom: 30px;
+  }
+
+  .contract-section {
+    margin-left: 8px;
+    padding-left: 14px;
   }
 
   .form-footer {

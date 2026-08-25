@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Building2,
   CalendarDays,
@@ -6,6 +6,7 @@ import {
   ChevronDown,
   ChevronRight,
   ChevronUp,
+  CircleCheck,
   ClipboardList,
   FileCheck2,
   FileText,
@@ -15,6 +16,7 @@ import {
   Menu,
   Save,
   Search,
+  Send,
   X,
 } from 'lucide-react'
 import {
@@ -172,7 +174,7 @@ function Sidebar({
           className={`primary-nav ${isSubmit ? 'is-active' : ''}`}
           onClick={() => onPageChange('submit')}
         >
-          <FileText size={16} />
+          <Send size={16} />
           <span>送审信息</span>
           <ChevronRight className="nav-spacer-icon" size={16} aria-hidden="true" />
         </button>
@@ -181,15 +183,15 @@ function Sidebar({
           className={`primary-nav ${!isSubmit ? 'is-active' : ''}`}
           aria-expanded={expanded}
           onClick={() => {
-            if (!expanded) {
+            if (isSubmit) {
               onExpandedChange(true)
               onPageChange('overall-review')
             } else {
-              onExpandedChange(false)
+              onExpandedChange(!expanded)
             }
           }}
         >
-          <FileCheck2 size={16} />
+          <CircleCheck size={16} />
           <span>审定信息</span>
           {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
         </button>
@@ -200,6 +202,7 @@ function Sidebar({
                 type="button"
                 key={page.id}
                 className={page.id === activePage.id ? 'is-active' : ''}
+                aria-current={page.id === activePage.id ? 'location' : undefined}
                 onClick={() => onPageChange(page.id)}
               >
                 <span className="nav-dot" aria-hidden="true" />
@@ -269,17 +272,23 @@ function BackgroundWorkspace({ onOpen }: { onOpen: () => void }) {
 
 export default function App() {
   const [drawerOpen, setDrawerOpen] = useState(true)
-  const [activePageId, setActivePageId] = useState('submit')
-  const [reviewExpanded, setReviewExpanded] = useState(false)
+  const [activePageId, setActivePageId] = useState('overall-review')
+  const [reviewExpanded, setReviewExpanded] = useState(true)
   const [values, setValues] = useState(initialValues)
   const [savedValues, setSavedValues] = useState(initialValues)
   const [toast, setToast] = useState<Toast>(null)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const formScrollRef = useRef<HTMLDivElement>(null)
+  const reviewSectionRefs = useRef<Record<string, HTMLElement | null>>({})
+  const pendingScrollRef = useRef<string | null>(null)
+  const scrollSpyLockRef = useRef<string | null>(null)
+  const scrollUnlockTimerRef = useRef<number | null>(null)
 
   const activePage = useMemo(
     () => pages.find((page) => page.id === activePageId) ?? pages[0],
     [activePageId],
   )
+  const isReviewMode = activePage.group === 'review'
 
   useEffect(() => {
     if (activePage.group === 'review') setReviewExpanded(true)
@@ -291,12 +300,77 @@ export default function App() {
     return () => window.clearTimeout(timeout)
   }, [toast])
 
+  useEffect(() => {
+    const targetId = pendingScrollRef.current
+    if (!isReviewMode || !targetId) return
+
+    const frame = window.requestAnimationFrame(() => {
+      pendingScrollRef.current = null
+      reviewSectionRefs.current[targetId]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
+      if (scrollUnlockTimerRef.current) {
+        window.clearTimeout(scrollUnlockTimerRef.current)
+      }
+      scrollUnlockTimerRef.current = window.setTimeout(() => {
+        scrollSpyLockRef.current = null
+        scrollUnlockTimerRef.current = null
+      }, 1000)
+    })
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [activePageId, isReviewMode])
+
+  useEffect(() => {
+    const scrollArea = formScrollRef.current
+    if (!isReviewMode || !scrollArea) return
+
+    const updateActiveSection = () => {
+      if (pendingScrollRef.current || scrollSpyLockRef.current) return
+
+      const scrollTop = scrollArea.getBoundingClientRect().top
+      let currentId = reviewPages[0].id
+
+      reviewPages.forEach((page) => {
+        const section = reviewSectionRefs.current[page.id]
+        if (section && section.getBoundingClientRect().top - scrollTop <= 96) {
+          currentId = page.id
+        }
+      })
+
+      const isAtBottom =
+        scrollArea.scrollTop + scrollArea.clientHeight >= scrollArea.scrollHeight - 24
+      if (isAtBottom) currentId = reviewPages[reviewPages.length - 1].id
+
+      setActivePageId((current) => (current === currentId ? current : currentId))
+    }
+
+    updateActiveSection()
+    scrollArea.addEventListener('scroll', updateActiveSection, { passive: true })
+    window.addEventListener('resize', updateActiveSection)
+
+    return () => {
+      scrollArea.removeEventListener('scroll', updateActiveSection)
+      window.removeEventListener('resize', updateActiveSection)
+    }
+  }, [isReviewMode])
+
+  useEffect(() => () => {
+    if (scrollUnlockTimerRef.current) {
+      window.clearTimeout(scrollUnlockTimerRef.current)
+    }
+  }, [])
+
   const updateValue = (id: string, value: string) => {
     setValues((current) => ({ ...current, [id]: value }))
   }
 
   const resetCurrentPage = () => {
-    const currentFields = activePage.fields ?? activePage.contracts?.flatMap((item) => item.fields) ?? []
+    const currentPages = isReviewMode ? reviewPages : [activePage]
+    const currentFields = currentPages.flatMap(
+      (page) => page.fields ?? page.contracts?.flatMap((item) => item.fields) ?? [],
+    )
     setValues((current) => {
       const next = { ...current }
       currentFields.forEach((field) => {
@@ -308,10 +382,27 @@ export default function App() {
 
   const saveCurrentPage = () => {
     setSavedValues(values)
-    setToast({ message: `${activePage.label}已保存`, key: Date.now() })
+    setToast({ message: `${isReviewMode ? '审定信息' : activePage.label}已保存`, key: Date.now() })
   }
 
   const changePage = (pageId: string) => {
+    const targetPage = pages.find((page) => page.id === pageId)
+    if (!targetPage) return
+
+    if (targetPage.group === 'review') {
+      setReviewExpanded(true)
+      pendingScrollRef.current = pageId
+      scrollSpyLockRef.current = pageId
+    } else {
+      pendingScrollRef.current = null
+      scrollSpyLockRef.current = null
+      if (scrollUnlockTimerRef.current) {
+        window.clearTimeout(scrollUnlockTimerRef.current)
+        scrollUnlockTimerRef.current = null
+      }
+      window.requestAnimationFrame(() => formScrollRef.current?.scrollTo({ top: 0 }))
+    }
+
     setActivePageId(pageId)
     setMobileNavOpen(false)
   }
@@ -363,21 +454,55 @@ export default function App() {
               </div>
 
               <main className="form-workspace">
-                <div className="form-scroll-area">
+                <div className="form-scroll-area" ref={formScrollRef}>
                   <div className="page-heading">
                     <div className="breadcrumb">
-                      {activePage.group === 'submit' ? '送审信息' : `审定信息 / ${activePage.label}`}
+                      工程业务表单 / {isReviewMode ? '审定信息' : '送审信息'}
                     </div>
-                    <h1>{activePage.label}</h1>
+                    <h1>{isReviewMode ? '审定信息' : activePage.label}</h1>
                   </div>
 
-                  {activePage.contracts ? (
-                    <div className="contracts">
-                      {activePage.contracts.map((contract) => (
-                        <section className="contract-section" key={contract.id}>
-                          <h3>{contract.label}</h3>
-                          <div className="contract-accent" />
-                          <FieldGrid fields={contract.fields} values={values} onChange={updateValue} />
+                  {isReviewMode ? (
+                    <div className="review-sections">
+                      {reviewPages.map((page) => (
+                        <section
+                          className="review-section"
+                          id={page.id}
+                          key={page.id}
+                          ref={(node) => {
+                            reviewSectionRefs.current[page.id] = node
+                          }}
+                        >
+                          <div className="review-section-heading">
+                            <span aria-hidden="true" />
+                            <h2>{page.label}</h2>
+                          </div>
+
+                          {page.contracts ? (
+                            <div className="contracts">
+                              {page.contracts.map((contract) => (
+                                <section className="contract-section" key={contract.id}>
+                                  <div className="contract-heading">
+                                    <span className="contract-icon" aria-hidden="true">
+                                      <FileText size={16} />
+                                    </span>
+                                    <h3>{contract.label}</h3>
+                                  </div>
+                                  <FieldGrid
+                                    fields={contract.fields}
+                                    values={values}
+                                    onChange={updateValue}
+                                  />
+                                </section>
+                              ))}
+                            </div>
+                          ) : (
+                            <FieldGrid
+                              fields={page.fields ?? []}
+                              values={values}
+                              onChange={updateValue}
+                            />
+                          )}
                         </section>
                       ))}
                     </div>
