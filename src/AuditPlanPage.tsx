@@ -2,8 +2,6 @@ import { useMemo, useRef, useState, type ComponentType, type DragEvent } from 'r
 import {
   BadgeCheck,
   Boxes,
-  ChevronDown,
-  ChevronRight,
   ClipboardCheck,
   CloudUpload,
   Database,
@@ -127,18 +125,15 @@ function AuditDirectory({
         >
           <FolderKanban size={16} />
           <span>项目资料</span>
-          <ChevronRight className="nav-hidden-icon" size={16} aria-hidden="true" />
         </button>
 
         <button
           type="button"
           className={`anchor-primary${sendPlanActive ? ' is-active' : ''}`}
           onClick={() => onNavigate('audit-send-plan')}
-          aria-expanded="true"
         >
           <Send size={16} />
           <span>送审计划</span>
-          <ChevronDown size={16} aria-hidden="true" />
         </button>
         <div className="anchor-secondary-group">
           {([
@@ -165,11 +160,9 @@ function AuditDirectory({
           type="button"
           className={`anchor-primary anchor-group-start${attachmentsActive ? ' is-active' : ''}`}
           onClick={() => onNavigate('audit-attachments')}
-          aria-expanded="true"
         >
           <Paperclip size={16} />
           <span>附件上传列表</span>
-          <ChevronDown size={16} aria-hidden="true" />
         </button>
         <div className="anchor-secondary-group">
           {uploadCategories.map((category) => {

@@ -3,8 +3,6 @@ import {
   BadgeCheck,
   Boxes,
   Calculator,
-  ChevronDown,
-  ChevronRight,
   ClipboardCheck,
   Files,
   HardHat,
@@ -86,18 +84,15 @@ function EntrySidebar({
         >
           <Send size={16} />
           <span>送审信息</span>
-          <ChevronRight className="nav-hidden-icon" size={16} aria-hidden="true" />
         </button>
 
         <button
           type="button"
           className={`anchor-primary${reviewIsActive ? ' is-active' : ''}`}
           onClick={() => navigate('entry-audit')}
-          aria-expanded="true"
         >
           <BadgeCheck size={16} />
           <span>审定信息</span>
-          <ChevronDown size={16} aria-hidden="true" />
         </button>
 
         <div className="anchor-secondary-group">

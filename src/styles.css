@@ -331,7 +331,7 @@ button:disabled {
 .anchor-secondary.is-active {
   color: var(--brand-500);
   background: var(--brand-50);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  border-radius: 0;
   font-weight: 500;
 }
 
@@ -359,10 +359,6 @@ button:disabled {
 
 .anchor-secondary.is-active .nav-dot {
   background: var(--brand-500);
-}
-
-.nav-hidden-icon {
-  visibility: hidden;
 }
 
 /* Audit plan work card */
