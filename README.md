@@ -2,6 +2,8 @@
 
 基于 Pencil V2 设计稿实现的工程业务审定信息录入演示网站。
 
+演示地址：https://yih14601-wq.github.io/engineering-review-entry-demo/
+
 ## 页面范围
 
 - 送审信息
