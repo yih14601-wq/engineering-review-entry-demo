@@ -672,7 +672,18 @@ input:focus-visible,
 
 .contracts {
   display: grid;
-  gap: 36px;
+  gap: 24px;
+}
+
+.contract-group {
+  display: grid;
+  gap: 24px;
+}
+
+.contract-divider {
+  height: 1px;
+  margin-left: 20px;
+  background: var(--neutral-200);
 }
 
 .contract-section {
@@ -844,7 +855,7 @@ input:focus-visible,
   }
 
   .contracts {
-    gap: 32px;
+    gap: 24px;
   }
 
   .review-section {
@@ -855,6 +866,10 @@ input:focus-visible,
   .contract-section {
     margin-left: 8px;
     padding-left: 14px;
+  }
+
+  .contract-divider {
+    margin-left: 8px;
   }
 
   .form-footer {

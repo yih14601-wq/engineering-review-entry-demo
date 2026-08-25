@@ -457,7 +457,7 @@ export default function App() {
                 <div className="form-scroll-area" ref={formScrollRef}>
                   <div className="page-heading">
                     <div className="breadcrumb">
-                      工程业务表单 / {isReviewMode ? '审定信息' : '送审信息'}
+                      录入审定信息 / {isReviewMode ? '审定信息' : '送审信息'}
                     </div>
                     <h1>{isReviewMode ? '审定信息' : activePage.label}</h1>
                   </div>
@@ -480,20 +480,23 @@ export default function App() {
 
                           {page.contracts ? (
                             <div className="contracts">
-                              {page.contracts.map((contract) => (
-                                <section className="contract-section" key={contract.id}>
-                                  <div className="contract-heading">
-                                    <span className="contract-icon" aria-hidden="true">
-                                      <FileText size={16} />
-                                    </span>
-                                    <h3>{contract.label}</h3>
-                                  </div>
-                                  <FieldGrid
-                                    fields={contract.fields}
-                                    values={values}
-                                    onChange={updateValue}
-                                  />
-                                </section>
+                              {page.contracts.map((contract, index) => (
+                                <div className="contract-group" key={contract.id}>
+                                  {index > 0 && <div className="contract-divider" aria-hidden="true" />}
+                                  <section className="contract-section">
+                                    <div className="contract-heading">
+                                      <span className="contract-icon" aria-hidden="true">
+                                        <FileText size={16} />
+                                      </span>
+                                      <h3>{contract.label}</h3>
+                                    </div>
+                                    <FieldGrid
+                                      fields={contract.fields}
+                                      values={values}
+                                      onChange={updateValue}
+                                    />
+                                  </section>
+                                </div>
                               ))}
                             </div>
                           ) : (
