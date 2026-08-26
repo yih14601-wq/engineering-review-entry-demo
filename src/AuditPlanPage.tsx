@@ -1,9 +1,7 @@
-import { useMemo, useRef, useState, type ComponentType, type DragEvent } from 'react'
+import { useMemo, useRef, useState, type ComponentType } from 'react'
 import {
-  BadgeCheck,
   Boxes,
   ClipboardCheck,
-  CloudUpload,
   Database,
   FileCheck2,
   FilePlus2,
@@ -19,7 +17,6 @@ import {
   Save,
   Send,
   Trash2,
-  Upload,
   X,
 } from 'lucide-react'
 import {
@@ -38,6 +35,10 @@ import {
   type UploadCategoryId,
 } from './data'
 import { FieldGrid } from './FormField'
+import FileUploadPanel, {
+  MAX_UPLOAD_FILE_SIZE,
+  type UploadFileItem,
+} from './FileUploadPanel'
 import { useAnchorNavigation } from './useAnchorNavigation'
 
 const auditAnchorIds = [
@@ -64,24 +65,13 @@ const uploadIcons: Record<UploadCategory['icon'], ComponentType<{ size?: number 
   files: Files,
 }
 
-interface UploadedFile {
-  id: string
-  name: string
-  size: number
-}
-
 const emptyUploads = uploadCategories.reduce(
   (result, category) => {
     result[category.id] = []
     return result
   },
-  {} as Record<UploadCategoryId, UploadedFile[]>,
+  {} as Record<UploadCategoryId, UploadFileItem[]>,
 )
-
-const formatFileSize = (size: number) => {
-  if (size < 1024 * 1024) return `${Math.max(1, Math.round(size / 1024))} KB`
-  return `${(size / 1024 / 1024).toFixed(1)} MB`
-}
 
 function PrimaryAnchorHeading({
   icon: Icon,
@@ -372,19 +362,17 @@ function UploadSection({
   files,
   onFiles,
   onDelete,
+  onRetry,
   sectionRef,
 }: {
   category: UploadCategory
-  files: UploadedFile[]
+  files: UploadFileItem[]
   onFiles: (files: File[]) => void
   onDelete: (id: string) => void
+  onRetry: (id: string) => void
   sectionRef: (node: HTMLElement | null) => void
 }) {
   const Icon = uploadIcons[category.icon]
-  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    onFiles(Array.from(event.dataTransfer.files))
-  }
 
   return (
     <section className="audit-section-card upload-section" ref={sectionRef}>
@@ -394,39 +382,13 @@ function UploadSection({
           <h3>{category.label}</h3>
         </div>
       </div>
-      <div className="upload-panel" onDragOver={(event) => event.preventDefault()} onDrop={handleDrop}>
-        <span className="upload-cloud-icon"><CloudUpload size={20} /></span>
-        <strong>拖拽文件到此处，或点击选择文件</strong>
-        <p>支持一次多选，也可分批重复上传</p>
-        <label className="primary-button compact-button upload-picker">
-          <Upload size={16} />
-          选择文件
-          <input
-            type="file"
-            multiple
-            onChange={(event) => {
-              onFiles(Array.from(event.target.files ?? []))
-              event.target.value = ''
-            }}
-          />
-        </label>
-        {files.length > 0 && (
-          <div className="uploaded-file-list" aria-label={`${category.label}已选择文件`}>
-            {files.map((file) => (
-              <div className="uploaded-file-row" key={file.id}>
-                <span className="file-status-icon"><BadgeCheck size={16} /></span>
-                <div>
-                  <strong>{file.name}</strong>
-                  <span>{formatFileSize(file.size)}</span>
-                </div>
-                <button type="button" className="icon-button" title="移除文件" aria-label={`移除 ${file.name}`} onClick={() => onDelete(file.id)}>
-                  <X size={16} />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      <FileUploadPanel
+        categoryLabel={category.label}
+        files={files}
+        onFiles={onFiles}
+        onDelete={onDelete}
+        onRetry={onRetry}
+      />
     </section>
   )
 }
@@ -508,9 +470,32 @@ export default function AuditPlanPage({
       id: `${category}-${uploadSequenceRef.current++}`,
       name: file.name,
       size: file.size,
+      status: file.size > MAX_UPLOAD_FILE_SIZE ? 'error' as const : 'success' as const,
     }))
     setUploads((current) => ({ ...current, [category]: [...current[category], ...next] }))
-    onNotify(`已选择 ${files.length} 份文件`)
+    const failedCount = next.filter((file) => file.status === 'error').length
+    onNotify(
+      failedCount
+        ? `${failedCount} 份文件超过 50MB，上传失败`
+        : `已上传 ${files.length} 份文件`,
+      failedCount ? 'error' : 'success',
+    )
+  }
+
+  const retryFile = (category: UploadCategoryId, fileId: string) => {
+    const file = uploads[category].find((item) => item.id === fileId)
+    if (!file) return
+    if (file.size > MAX_UPLOAD_FILE_SIZE) {
+      onNotify('文件仍超过 50MB，请删除后重新选择', 'error')
+      return
+    }
+    setUploads((current) => ({
+      ...current,
+      [category]: current[category].map((item) =>
+        item.id === fileId ? { ...item, status: 'success' } : item,
+      ),
+    }))
+    onNotify('文件已重新上传')
   }
 
   const navigate = (id: string) => {
@@ -629,6 +614,7 @@ export default function AuditPlanPage({
                       [category.id]: current[category.id].filter((file) => file.id !== fileId),
                     }))
                   }
+                  onRetry={(fileId) => retryFile(category.id, fileId)}
                   sectionRef={registerSection(`audit-${category.id}`)}
                 />
               ))}
