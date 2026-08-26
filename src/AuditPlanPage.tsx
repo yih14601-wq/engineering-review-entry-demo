@@ -16,6 +16,7 @@ import {
   Plus,
   ReceiptText,
   Ruler,
+  Save,
   Send,
   Trash2,
   Upload,
@@ -115,7 +116,7 @@ function AuditDirectory({
   const attachmentsActive = activeAnchor === 'audit-attachments' || activeAnchor.includes('-files')
 
   return (
-    <aside className="audit-directory" aria-label="审计计划工单目录">
+    <aside className="audit-directory" aria-label="送审管理工单目录">
       <div className="directory-label">工单目录</div>
       <nav className="anchor-nav audit-anchor-nav">
         <button
@@ -517,7 +518,23 @@ export default function AuditPlanPage({
 
   return (
     <div className="system-shell">
-      <header className="system-header" aria-label="顶部占位区域" />
+      <header className="system-header">
+        <div className="system-header-start">
+          <h1>送审管理</h1>
+          <button
+            type="button"
+            className="secondary-button compact-button"
+            onClick={() => onNotify('审计计划页面正在设计中')}
+          >
+            <ClipboardCheck size={16} />
+            审计计划
+          </button>
+          <button type="button" className="primary-button compact-button" onClick={onOpenEntry}>
+            <FileCheck2 size={16} />
+            录入审定信息
+          </button>
+        </div>
+      </header>
 
       <div className="system-body">
         <aside className="system-sidebar" aria-label="左侧占位区域" />
@@ -546,10 +563,6 @@ export default function AuditPlanPage({
             <div className="audit-content-scroll" ref={scrollRef}>
               <header className="work-order-header">
                 <span>送审资料：1</span>
-                <button type="button" className="primary-button compact-button" onClick={onOpenEntry}>
-                  <FileCheck2 size={16} />
-                  录入审定信息
-                </button>
               </header>
               <div className="audit-content-stack">
                 <section className="project-section-card" ref={registerSection('audit-project')}>
@@ -620,6 +633,24 @@ export default function AuditPlanPage({
                 <div className="scroll-end-space" aria-hidden="true" />
               </div>
             </div>
+            <footer className="send-management-footer">
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={() => onNotify('送审管理已保存，尚未提交')}
+              >
+                <Save size={16} />
+                不提交，仅保存
+              </button>
+              <button
+                type="button"
+                className="primary-button"
+                onClick={() => onNotify('送审管理已保存并提交')}
+              >
+                <Send size={16} />
+                保存并提交
+              </button>
+            </footer>
           </div>
         </main>
       </div>

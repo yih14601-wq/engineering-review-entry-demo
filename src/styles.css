@@ -145,10 +145,22 @@ button:disabled {
   height: 144px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 0 48px;
   background: #fff;
   border-bottom: 1px solid var(--neutral-200);
+}
+
+.system-header-start {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.system-header-start h1 {
+  margin: 0 12px 0 0;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 .system-brand,
@@ -397,6 +409,18 @@ button:disabled {
   min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+.send-management-footer {
+  height: 64px;
+  flex: 0 0 64px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 0 24px;
+  background: var(--neutral-50);
+  border-top: 1px solid var(--neutral-200);
 }
 
 .work-order-header {
@@ -1374,6 +1398,20 @@ button:disabled {
     font-size: 16px;
   }
 
+  .system-header-start {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .system-header-start h1 {
+    margin-right: auto;
+    font-size: 18px;
+  }
+
+  .system-header-start .compact-button {
+    padding: 0 10px;
+  }
+
   .system-header-actions .primary-button {
     width: 40px;
     padding: 0;
@@ -1408,6 +1446,16 @@ button:disabled {
 
   .section-actions .compact-button {
     flex: 1;
+  }
+
+  .send-management-footer {
+    padding: 0 16px;
+  }
+
+  .send-management-footer .primary-button,
+  .send-management-footer .secondary-button {
+    flex: 1;
+    padding: 0 10px;
   }
 
   .field-grid,
@@ -1454,6 +1502,21 @@ button:disabled {
     width: calc(100vw - 32px);
     justify-content: center;
     text-align: center;
+  }
+}
+
+@media (max-width: 520px) {
+  .system-header {
+    padding: 0 12px;
+  }
+
+  .system-header-start h1 {
+    display: none;
+  }
+
+  .system-header-start .compact-button {
+    flex: 1;
+    min-width: 0;
   }
 }
 
