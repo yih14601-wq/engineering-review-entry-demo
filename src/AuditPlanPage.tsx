@@ -432,9 +432,11 @@ function UploadSection({
 }
 
 export default function AuditPlanPage({
+  onOpenAudit,
   onOpenEntry,
   onNotify,
 }: {
+  onOpenAudit: () => void
   onOpenEntry: () => void
   onNotify: (message: string, tone?: 'success' | 'error') => void
 }) {
@@ -524,7 +526,7 @@ export default function AuditPlanPage({
           <button
             type="button"
             className="secondary-button compact-button"
-            onClick={() => onNotify('审计计划页面正在设计中')}
+            onClick={onOpenAudit}
           >
             <ClipboardCheck size={16} />
             审计计划

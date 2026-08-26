@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Check, CircleAlert } from 'lucide-react'
-import AuditPlanPage from './AuditPlanPage'
+import SendManagementPage from './AuditPlanPage'
 import EntryReviewDrawer from './EntryReviewDrawer'
+import FinalAuditPlanPage from './FinalAuditPlanPage'
 
 interface ToastState {
   key: number
@@ -10,6 +11,7 @@ interface ToastState {
 }
 
 export default function App() {
+  const [page, setPage] = useState<'submission' | 'audit'>('submission')
   const [entryOpen, setEntryOpen] = useState(false)
   const [toast, setToast] = useState<ToastState | null>(null)
 
@@ -25,7 +27,19 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <AuditPlanPage onOpenEntry={() => setEntryOpen(true)} onNotify={notify} />
+      {page === 'submission' ? (
+        <SendManagementPage
+          onOpenAudit={() => setPage('audit')}
+          onOpenEntry={() => setEntryOpen(true)}
+          onNotify={notify}
+        />
+      ) : (
+        <FinalAuditPlanPage
+          onBackToSubmission={() => setPage('submission')}
+          onOpenEntry={() => setEntryOpen(true)}
+          onNotify={notify}
+        />
+      )}
       <EntryReviewDrawer
         open={entryOpen}
         onClose={() => setEntryOpen(false)}
