@@ -1,0 +1,164 @@
+{
+  "project": {
+    "name": "工程审计业务系统",
+    "targetFramework": "Vue",
+    "referenceImplementation": "React + Vite + TypeScript",
+    "demoUrl": "https://yih14601-wq.github.io/engineering-review-entry-demo/",
+    "designSource": "Pencil 最终设计稿",
+    "viewport": { "width": 1920, "height": 1080 }
+  },
+  "globalRules": {
+    "navigation": "左侧导航为锚点定位，不是分页；内容滚动时同步高亮并确保目录当前项可见",
+    "directoryArrows": false,
+    "selectedNavRadius": 0,
+    "fixedBottomActionBar": true,
+    "fontFamily": ["Noto Sans SC", "PingFang SC", "Microsoft YaHei", "sans-serif"],
+    "fieldKinds": ["text", "number", "date", "amount", "readonly", "select"],
+    "readonlyState": "使用锁图标表示，不显示只读或禁用文字",
+    "attachmentMaxSizeMB": 50
+  },
+  "tokens": {
+    "brand500": "#0052d9",
+    "brand600": "#0048bf",
+    "pageBackground": "#f2f3f5",
+    "cardBackground": "#f7f8fa",
+    "border": "#e5e6eb",
+    "textPrimary": "#1d2129",
+    "textSecondary": "#4e5969",
+    "textMuted": "#86909c",
+    "success": "#00a870",
+    "error": "#e34d59",
+    "cardRadius": 8,
+    "controlRadius": 4
+  },
+  "pages": [
+    {
+      "id": "send-management",
+      "title": "送审管理",
+      "type": "full-page",
+      "topPlaceholder": "white-empty",
+      "leftPlaceholder": "white-empty",
+      "workCard": { "width": 1610, "height": 920 },
+      "topActions": ["审计计划", "录入审定信息"],
+      "footerActions": ["不提交，仅保存", "保存并提交"],
+      "sections": [
+        {
+          "id": "audit-project",
+          "label": "项目资料",
+          "level": 1,
+          "fields": [
+            { "label": "项目名称", "kind": "readonly" },
+            { "label": "项目类型", "kind": "readonly" }
+          ]
+        },
+        {
+          "id": "audit-send-plan",
+          "label": "送审计划",
+          "level": 1,
+          "children": [
+            {
+              "id": "audit-construction",
+              "label": "施工",
+              "level": 2,
+              "grouped": true,
+              "minimumGroups": 1,
+              "groupActions": ["删除", "新增组", "新增供应商"],
+              "fieldsPerGroup": ["text", "select", "amount", "amount"]
+            },
+            {
+              "id": "audit-design",
+              "label": "设计",
+              "level": 2,
+              "grouped": true,
+              "minimumGroups": 0,
+              "emptyCopy": "暂无设计内容，可新增一组信息",
+              "groupActions": ["删除", "新增组", "新增供应商"],
+              "fieldsPerGroup": ["text", "select", "amount", "amount"]
+            },
+            {
+              "id": "audit-supervision",
+              "label": "监理",
+              "level": 2,
+              "grouped": true,
+              "minimumGroups": 0,
+              "emptyCopy": "暂无监理内容，可新增一组信息",
+              "groupActions": ["删除", "新增组", "新增供应商"],
+              "fieldsPerGroup": ["text", "select", "amount", "amount"]
+            },
+            {
+              "id": "audit-supplied-material",
+              "label": "甲供物资",
+              "level": 2,
+              "fieldsCount": 5,
+              "requiredKinds": ["text", "select", "amount", "amount"]
+            },
+            {
+              "id": "audit-other",
+              "label": "其他信息",
+              "level": 2,
+              "fieldsCount": 5,
+              "requiredKinds": ["text", "select", "amount", "amount"]
+            }
+          ]
+        },
+        {
+          "id": "audit-attachments",
+          "label": "附件上传列表",
+          "level": 1,
+          "children": [
+            { "id": "audit-new-files", "label": "新的附件", "component": "FileUploadPanel" },
+            { "id": "audit-submitted-files", "label": "送审附件", "component": "FileUploadPanel" },
+            { "id": "audit-other-files", "label": "其他资料", "component": "FileUploadPanel" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "entry-review-drawer",
+      "title": "录入审定信息",
+      "type": "right-drawer",
+      "footerActions": ["取消", "保存"],
+      "sections": [
+        { "id": "entry-submit", "label": "送审信息", "level": 1, "fieldsCount": 5 },
+        {
+          "id": "entry-audit",
+          "label": "审定信息",
+          "level": 1,
+          "children": [
+            "结算总审定",
+            "施工费审定/合同 1/合同 2",
+            "设计费审定",
+            "监理费审定",
+            "甲供材料",
+            "甲供设备",
+            "其他费用审定",
+            "拆旧物资",
+            "结算"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "audit-plan",
+      "title": "审计计划",
+      "type": "full-page",
+      "workHeader": {
+        "title": "工程详情",
+        "helper": "当前项目：1",
+        "actions": ["当前流程节点"]
+      },
+      "allFieldsReadonly": true,
+      "sections": [
+        { "id": "audit-final-project", "label": "工程信息", "fieldsCount": 5 },
+        { "id": "audit-final-contracts", "label": "合同信息", "children": ["施工合同", "设计合同", "监理合同"] },
+        { "id": "audit-final-submission", "label": "送审信息", "fieldsCount": 12, "attachment": "送审附件" },
+        { "id": "audit-final-review", "label": "审定信息", "childrenFrom": "录入审定信息.审定信息", "extraChild": "审定附件" },
+        { "id": "audit-final-records", "label": "审计记录", "fieldsCount": 5, "extraChild": "审定记录附件" },
+        { "id": "audit-final-working-papers", "label": "审计底稿", "fieldsCount": 5, "extraChild": "审定底稿附件" },
+        { "id": "audit-final-location", "label": "点位信息", "fieldsCount": 5, "children": ["现场照片", "现场定位地图"] },
+        { "id": "audit-final-report", "label": "审计报告", "attachmentFiles": 4 },
+        { "id": "audit-final-decision", "label": "定案单", "typeSelector": "tab", "tabCount": 5, "children": ["施工合同 1", "施工合同 2", "定案单扫描件"] }
+      ]
+    }
+  ]
+}
