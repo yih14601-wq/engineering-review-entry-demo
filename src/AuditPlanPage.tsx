@@ -291,7 +291,7 @@ function GroupSection({
       {groups.length === 0 ? (
         <div className="empty-group-state">
           <span><Files size={20} /></span>
-          <strong>暂无{config.label}字段组</strong>
+          <strong>暂无{config.label}信息</strong>
           <p>新增一组后即可录入送审计划数据</p>
           <button type="button" className="primary-button compact-button" onClick={onAdd}>
             <Plus size={16} />
@@ -482,7 +482,7 @@ export default function AuditPlanPage({
         createPlanGroup(category, current[category].length + 1, `added-${sequence}`),
       ],
     }))
-    onNotify(`${planGroupConfigs[category].label}字段组已新增`)
+    onNotify(`${planGroupConfigs[category].label}信息已新增`)
   }
 
   const deleteGroup = (category: PlanGroupCategory, groupId: string) => {
@@ -496,7 +496,7 @@ export default function AuditPlanPage({
       ...current,
       [category]: current[category].filter((group) => group.id !== groupId),
     }))
-    onNotify(`${config.label}字段组已删除`)
+    onNotify(`${config.label}信息已删除`)
   }
 
   const addFiles = (category: UploadCategoryId, files: File[]) => {
