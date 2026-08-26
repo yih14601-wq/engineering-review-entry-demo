@@ -1,4 +1,4 @@
-import { useMemo, useState, type ComponentType } from 'react'
+import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
 import {
   BadgeCheck,
   BookOpenCheck,
@@ -311,8 +311,38 @@ function AuditDirectory({
   activeAnchor: string
   onNavigate: (id: string) => void
 }) {
+  const directoryRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const directory = directoryRef.current
+      const activeItem = directory?.querySelector<HTMLElement>(
+        `[data-anchor-id="${activeAnchor}"]`,
+      )
+      if (!directory || !activeItem) return
+
+      const directoryRect = directory.getBoundingClientRect()
+      const itemRect = activeItem.getBoundingClientRect()
+      const visibleTop = directoryRect.top + 56
+      const visibleBottom = directoryRect.bottom - 24
+      let nextScrollTop = directory.scrollTop
+
+      if (itemRect.top < visibleTop) {
+        nextScrollTop += itemRect.top - visibleTop - 8
+      } else if (itemRect.bottom > visibleBottom) {
+        nextScrollTop += itemRect.bottom - visibleBottom + 8
+      } else {
+        return
+      }
+
+      directory.scrollTo({ top: Math.max(0, nextScrollTop), behavior: 'smooth' })
+    })
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [activeAnchor])
+
   return (
-    <aside className="audit-directory" aria-label="审计计划工单目录">
+    <aside className="audit-directory" aria-label="审计计划工单目录" ref={directoryRef}>
       <div className="directory-label">工单目录</div>
       <nav className="anchor-nav audit-anchor-nav final-audit-anchor-nav">
         {directoryGroups.map((group) => {
@@ -321,6 +351,7 @@ function AuditDirectory({
             <div className="final-directory-group" key={group.id}>
               <button
                 type="button"
+                data-anchor-id={group.id}
                 className={`anchor-primary${groupIsActive(group, activeAnchor) ? ' is-active' : ''}`}
                 onClick={() => onNavigate(group.id)}
               >
@@ -332,6 +363,7 @@ function AuditDirectory({
                   {group.children.map((item) => (
                     <button
                       type="button"
+                      data-anchor-id={item.id}
                       key={item.id}
                       className={`anchor-secondary${activeAnchor === item.id ? ' is-active' : ''}`}
                       aria-current={activeAnchor === item.id ? 'location' : undefined}
